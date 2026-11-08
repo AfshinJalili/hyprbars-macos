@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <hyprland/src/plugins/PluginAPI.hpp>
 #include <hyprland/src/render/Texture.hpp>
 #include <hyprland/src/config/values/types/BoolValue.hpp>
@@ -18,6 +19,9 @@ struct SOmarchyFloatingHyprButton {
   float size = 10;
   std::string icon = "";
   SP<Render::ITexture> iconTex;
+  // Rendered traffic lights, keyed by pixel size and state, so a light is drawn
+  // once per scale rather than every frame.
+  std::map<std::string, SP<Render::ITexture>> lightTex;
 };
 
 class COmarchyFloatingHyprBar;
@@ -38,6 +42,7 @@ struct SOmarchyFloatingGlobalState {
     SP<Config::Values::CIntValue> barButtonPadding;
     SP<Config::Values::CIntValue> buttonRounding;
     SP<Config::Values::CIntValue> buttonBorderSize;
+    SP<Config::Values::CIntValue> inactiveTitleOpacity;
     SP<Config::Values::CBoolValue> barBlur, barTitleEnabled, barPartOfWindow, barPrecedenceOverBorder, enabled, iconOnHover;
     SP<Config::Values::CStringValue> barTextFont, barTextAlign, barButtonsAlignment, onDoubleClick, workspaceTag;
   } config;

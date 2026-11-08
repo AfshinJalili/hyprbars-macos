@@ -26,6 +26,7 @@
 
 #include "globals.hpp"
 #include "BarPassElement.hpp"
+#include "lights.hpp"
 #include <hyprland/src/managers/fullscreen/FullscreenController.hpp>
 #include "appName.hpp"
 
@@ -411,6 +412,31 @@ size_t COmarchyFloatingHyprBar::getVisibleButtonCount(Config::INTEGER barButtonP
   return count;
 }
 
+// A light draws its own glyph when the buttons are circular and its icon names
+// one; any other icon keeps the text path.
+bool COmarchyFloatingHyprBar::drawsOwnGlyph(const SOmarchyFloatingHyprButton &button) const {
+  return g_pOmarchyFloatingGlobalState->config.buttonRounding->value() < 0 && lightGlyphFor(button.icon) != eLightGlyph::NONE;
+}
+
+void COmarchyFloatingHyprBar::renderLightButton(SOmarchyFloatingHyprButton &button, const CBox &box, const CHyprColor &face, float a) {
+  const auto ICONONHOVER = g_pOmarchyFloatingGlobalState->config.iconOnHover->value();
+  const auto glyph = lightGlyphFor(button.icon);
+  // An unfocused window shows plain lights in the inactive colour, as macOS
+  // does; hovering any light shows every light's glyph.
+  const bool inactive = face != button.bgcol;
+  const bool withGlyph = !inactive && glyph != eLightGlyph::NONE && (!ICONONHOVER || m_iButtonHoverState != 0);
+  const int px = static_cast<int>(std::round(box.w));
+
+  const auto key = std::to_string(px) + (inactive ? ":inactive" : withGlyph ? ":glyph" : ":plain");
+  auto &tex = button.lightTex[key];
+  if (!tex || tex->m_texID == 0) {
+    auto glyphColor = button.userfg ? button.fgcol : CHyprColor(0, 0, 0, 0.55);
+    tex = renderLight(px, face, glyph, withGlyph, glyphColor);
+  }
+
+  g_pHyprOpenGL->renderTexture(tex, box, {.a = a});
+}
+
 void COmarchyFloatingHyprBar::renderBarButtons(CBox *barBox, const float scale, const float a) {
   const auto BARBUTTONPADDING = g_pOmarchyFloatingGlobalState->config.barButtonPadding->value();
   const auto BARPADDING = g_pOmarchyFloatingGlobalState->config.barPadding->value();
@@ -438,11 +464,19 @@ void COmarchyFloatingHyprBar::renderBarButtons(CBox *barBox, const float scale, 
         button.iconTex = nullptr;
     }
 
-    color.a *= a;
-
     CBox buttonBox = {barBox->x + (BUTTONSRIGHT ? barBox->w - offset - scaledButtonSize : offset), barBox->y + (barBox->h - scaledButtonSize) / 2.0,
                       scaledButtonSize, scaledButtonSize};
     buttonBox.round();
+
+    // Circular buttons are drawn as traffic lights: a texture rendered at the
+    // light's exact pixel size, so its edge and glyph stay smooth at any scale.
+    if (BUTTONROUNDING < 0) {
+      renderLightButton(button, buttonBox, color, a);
+      offset += scaledButtonsPad + scaledButtonSize;
+      continue;
+    }
+
+    color.a *= a;
 
     const int maxRounding = static_cast<int>(std::round(scaledButtonSize / 2.0));
     const int rounding = BUTTONROUNDING < 0 ? maxRounding : std::clamp(static_cast<int>(std::round(BUTTONROUNDING * scale)), 0, maxRounding);
@@ -493,6 +527,16 @@ void COmarchyFloatingHyprBar::renderBarButtonsText(CBox *barBox, const float sca
         Vector2D{(BUTTONSRIGHT ? BARBUF.x - BARBUTTONPADDING - button.size - noScaleOffset : noScaleOffset), (BARBUF.y - button.size) / 2.0}.floor();
     bool hovering = VECINRECT(COORDS, currentPos.x, currentPos.y, currentPos.x + button.size + BARBUTTONPADDING, currentPos.y + button.size);
     noScaleOffset += BARBUTTONPADDING + button.size;
+
+    if (drawsOwnGlyph(button)) {
+      offset += scaledButtonsPad + scaledButtonSize;
+      bool currentBit = (m_iButtonHoverState & (1 << i)) != 0;
+      if (hovering != currentBit) {
+        m_iButtonHoverState ^= (1 << i);
+        damageEntire();
+      }
+      continue;
+    }
 
     if ((!button.iconTex || button.iconTex->m_texID == 0) && !button.icon.empty()) {
       // render icon
@@ -670,7 +714,9 @@ void COmarchyFloatingHyprBar::renderPass(PHLMONITOR pMonitor, const float &a) {
     const auto yOffset = std::round((BARBUF.y - m_pTextTex->m_size.y) / 2.0);
     CBox titleBox = {textBox.x + xOffset, textBox.y + yOffset, m_pTextTex->m_size.x, m_pTextTex->m_size.y};
 
-    g_pHyprOpenGL->renderTexture(m_pTextTex, titleBox, {.a = a});
+    const auto INACTIVETITLE = g_pOmarchyFloatingGlobalState->config.inactiveTitleOpacity->value();
+    const float titleAlpha = m_bWindowHasFocus ? 1.F : std::clamp(static_cast<float>(INACTIVETITLE) / 100.F, 0.F, 1.F);
+    g_pHyprOpenGL->renderTexture(m_pTextTex, titleBox, {.a = a * titleAlpha});
   }
 
   renderBarButtons(&textBox, pMonitor->m_scale, a);
