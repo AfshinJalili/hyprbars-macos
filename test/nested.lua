@@ -9,11 +9,13 @@ hl.config({
   general = { gaps_out = 20, border_size = 1 },
   decoration = { rounding = 12, rounding_power = 3 },
   animations = { enabled = false },
-  misc = { disable_hyprland_logo = true, disable_splash_rendering = true, background_color = "rgb(3a4a6a)" },
+  misc = { disable_hyprland_logo = true, disable_splash_rendering = true, disable_watchdog_warning = true, background_color = "rgb(3a4a6a)" },
 })
-hl.window_rule({ match = { class = ".*" }, float = true, size = "560 160" })
-hl.window_rule({ match = { title = "Unfocused.*" }, move = "40 60" })
-hl.window_rule({ match = { title = "Focused.*" }, move = "40 260" })
+-- HYPRBARS_LAYOUT=docs packs the windows for README screenshots at 2x.
+local docs = os.getenv("HYPRBARS_LAYOUT") == "docs"
+hl.window_rule({ match = { class = ".*" }, float = true, size = docs and "460 110" or "560 160" })
+hl.window_rule({ match = { title = "Unfocused.*" }, move = docs and "40 30" or "40 60" })
+hl.window_rule({ match = { title = "Focused.*" }, move = docs and "40 190" or "40 260" })
 
 hl.plugin.load(root .. "/build/hyprbars-macos.so")
 if hl.plugin.hyprbars then
