@@ -677,9 +677,19 @@ void COmarchyFloatingHyprBar::renderPass(Render::CRenderContext &ctx, PHLMONITOR
   std::string title = omarchyAppName(PWINDOW->metadata().appID());
   if (title.empty())
     title = PWINDOW->metadata().title();
-  if (ENABLETITLE && (m_szLastTitle != title || m_bWindowSizeChanged || !m_pTextTex || m_pTextTex->m_texID == 0 || m_bTitleColorChanged)) {
+  // The title is rendered at the monitor's scale. A window dragged between
+  // monitors of different scales is drawn on each, so one texture is kept per
+  // scale; otherwise the title shows at the other monitor's size.
+  if (m_szLastTitle != title || m_bWindowSizeChanged || m_bTitleColorChanged)
+    m_titleTexByScale.clear();
+  if (ENABLETITLE) {
     m_szLastTitle = title;
-    renderBarTitle(BARBUF, pMonitor->m_scale);
+    auto &tex = m_titleTexByScale[static_cast<int>(std::round(pMonitor->m_scale * 100))];
+    if (!tex || tex->m_texID == 0) {
+      renderBarTitle(BARBUF, pMonitor->m_scale);
+      tex = m_pTextTex;
+    }
+    m_pTextTex = tex;
   }
 
   if (ROUNDING) {
@@ -743,6 +753,7 @@ void COmarchyFloatingHyprBar::onConfigReloaded() {
   m_bButtonsDirty = true;
   m_bTitleColorChanged = true;
   m_pTextTex = nullptr;
+  m_titleTexByScale.clear();
 
   g_pDecorationPositioner->repositionDeco(this);
 
