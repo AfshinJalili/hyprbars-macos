@@ -7,7 +7,7 @@ SCALE="${1:-1}"
 OUT="${2:-$ROOT/test/shot-$SCALE.png}"
 before=$(ls "$XDG_RUNTIME_DIR"/hypr 2>/dev/null | sort)
 sockets_before=$(cd "$XDG_RUNTIME_DIR" && ls -d wayland-* 2>/dev/null | grep -v lock | sort)
-HYPRBARS_ROOT="$ROOT" HYPRBARS_SCALE="$SCALE" Hyprland -c "$ROOT/test/nested.lua" >"$ROOT/test/nested.log" 2>&1 &
+HYPRBARS_ROOT="$ROOT" HYPRBARS_SCALE="$SCALE" HYPRBARS_LAYOUT="${HYPRBARS_LAYOUT:-}" Hyprland -c "$ROOT/test/nested.lua" >"$ROOT/test/nested.log" 2>&1 &
 pid=$!
 trap 'kill $pid 2>/dev/null || true' EXIT
 sleep 4
@@ -20,8 +20,12 @@ HYPRLAND_INSTANCE_SIGNATURE="$sig" hyprctl configerrors || true
 HYPRLAND_INSTANCE_SIGNATURE="$sig" hyprctl clients -j | jq -c '.[] | {title, at, size}' || true
 HYPRLAND_INSTANCE_SIGNATURE="$sig" hyprctl monitors -j | jq -c '.[] | {name, scale, width, height}'
 if [[ -n ${3:-} ]]; then
-  HYPRLAND_INSTANCE_SIGNATURE="$sig" hyprctl eval "hl.dispatch(hl.dsp.cursor.move({ x = ${3%,*}, y = ${3#*,} }))" >/dev/null
-  sleep 0.6
+  # Approach in steps: the bar tracks hover from pointer motion.
+  for dx in 30 15 0; do
+    HYPRLAND_INSTANCE_SIGNATURE="$sig" hyprctl eval "hl.dispatch(hl.dsp.cursor.move({ x = $(( ${3%,*} + dx )), y = ${3#*,} }))" >/dev/null
+    sleep 0.3
+  done
+  sleep 0.5
 fi
 WAYLAND_DISPLAY="$socket" grim "$OUT"
 echo "saved $OUT"
