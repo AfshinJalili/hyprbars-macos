@@ -45,6 +45,8 @@ Do not load it next to another `hyprbars` build; they share a name and options.
 
 `hyprpm` picks the right one for your Hyprland through the pins in `hyprpm.toml`.
 
+Releases are tagged `vX.Y.Z`. Each Hyprland version a commit was tested against also gets an `hlX.Y.Z` tag on that commit, for packagers and manual builds.
+
 ## Configure
 
 The plugin reloads the config once it has loaded, so guard the configuration on it being there. A macOS setup:
