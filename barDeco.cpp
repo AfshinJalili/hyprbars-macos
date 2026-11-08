@@ -460,8 +460,8 @@ void COmarchyFloatingHyprBar::renderBarButtons(CBox *barBox, const float scale, 
 
     if (INACTIVECOLOR > 0) {
       color = m_bWindowHasFocus ? color : configColor(INACTIVECOLOR);
-      if (INVALIDATEICONS && button.userfg && button.iconTex)
-        button.iconTex = nullptr;
+      if (INVALIDATEICONS && button.userfg)
+        button.iconTex.clear();
     }
 
     CBox buttonBox = {barBox->x + (BUTTONSRIGHT ? barBox->w - offset - scaledButtonSize : offset), barBox->y + (barBox->h - scaledButtonSize) / 2.0,
@@ -538,23 +538,24 @@ void COmarchyFloatingHyprBar::renderBarButtonsText(CBox *barBox, const float sca
       continue;
     }
 
-    if ((!button.iconTex || button.iconTex->m_texID == 0) && !button.icon.empty()) {
+    auto &iconTex = button.iconTex[static_cast<int>(std::round(scale * 100))];
+    if ((!iconTex || iconTex->m_texID == 0) && !button.icon.empty()) {
       // render icon
       auto fgcol = button.userfg ? button.fgcol : (button.bgcol.r + button.bgcol.g + button.bgcol.b < 1) ? CHyprColor(0xFFFFFFFF) : CHyprColor(0xFF000000);
 
-      button.iconTex = g_pHyprRenderer->renderText(button.icon, fgcol, std::round(button.size * 0.62 * scale), false, "sans", scaledButtonSize);
+      iconTex = g_pHyprRenderer->renderText(button.icon, fgcol, std::round(button.size * 0.62 * scale), false, "sans", scaledButtonSize);
     }
 
-    if (!button.iconTex || button.iconTex->m_texID == 0)
+    if (!iconTex || iconTex->m_texID == 0)
       continue;
 
     const auto iconX =
-        barBox->x + (BUTTONSRIGHT ? barBox->width - offset - scaledButtonSize / 2.0 : offset + scaledButtonSize / 2.0) - button.iconTex->m_size.x / 2.0;
-    const auto iconY = barBox->y + barBox->height / 2.0 - button.iconTex->m_size.y / 2.0;
-    CBox pos = {iconX, iconY, button.iconTex->m_size.x, button.iconTex->m_size.y};
+        barBox->x + (BUTTONSRIGHT ? barBox->width - offset - scaledButtonSize / 2.0 : offset + scaledButtonSize / 2.0) - iconTex->m_size.x / 2.0;
+    const auto iconY = barBox->y + barBox->height / 2.0 - iconTex->m_size.y / 2.0;
+    CBox pos = {iconX, iconY, iconTex->m_size.x, iconTex->m_size.y};
 
     if (!ICONONHOVER || (ICONONHOVER && m_iButtonHoverState > 0))
-      g_pHyprOpenGL->renderTexture(button.iconTex, pos, {.a = a});
+      g_pHyprOpenGL->renderTexture(iconTex, pos, {.a = a});
     offset += scaledButtonsPad + scaledButtonSize;
 
     bool currentBit = (m_iButtonHoverState & (1 << i)) != 0;
