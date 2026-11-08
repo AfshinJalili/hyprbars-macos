@@ -3,11 +3,11 @@ name = "hyprbars-macos"
 authors = ["Afshin Jalili"]
 # Hyprland commit -> plugin commit. Hyprland versions not listed build main.
 commit_pins = [
-    ["36b2e0cfe0c6094dbc47bd42a437431315bb3087", "c9a22a432b5598bf377b44d289e332dd54790151"], # 0.56.0
-    ["5c9377c15f85c50648f35ca5a213754f95b93ca0", "c9a22a432b5598bf377b44d289e332dd54790151"], # 0.56.1
-    ["efb50993780079460b0cbed1363e2166a2de1d9f", "c9a22a432b5598bf377b44d289e332dd54790151"], # 0.56.2
-    ["0aa6745f705f2c4b0a5004eb019ef76e5bbdb426", "a3774588fbe2055c3bc54f89c8a98f8f20c8b01c"], # 0.57.0
-    ["acc1aa0bfd4bd575dcb0f76c35ccf12b660a1ab9", "a3774588fbe2055c3bc54f89c8a98f8f20c8b01c"], # 0.57.1
+    ["36b2e0cfe0c6094dbc47bd42a437431315bb3087", "6b1fbd495c362ebc3d80cd1c3791f37a9e9324c8"], # 0.56.0
+    ["5c9377c15f85c50648f35ca5a213754f95b93ca0", "6b1fbd495c362ebc3d80cd1c3791f37a9e9324c8"], # 0.56.1
+    ["efb50993780079460b0cbed1363e2166a2de1d9f", "6b1fbd495c362ebc3d80cd1c3791f37a9e9324c8"], # 0.56.2
+    ["0aa6745f705f2c4b0a5004eb019ef76e5bbdb426", "dceccc4f4151cd94fcbf19cbc587f304f953276f"], # 0.57.0
+    ["acc1aa0bfd4bd575dcb0f76c35ccf12b660a1ab9", "dceccc4f4151cd94fcbf19cbc587f304f953276f"], # 0.57.1
 ]
 
 [hyprbars-macos]
