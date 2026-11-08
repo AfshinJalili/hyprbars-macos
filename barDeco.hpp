@@ -61,6 +61,8 @@ private:
   CBox m_bAssignedBox;
 
   SP<Render::ITexture> m_pTextTex;
+  // Title textures keyed by monitor scale x100; see draw().
+  std::map<int, SP<Render::ITexture>> m_titleTexByScale;
 
   bool m_bWindowSizeChanged = false;
   bool m_hidden = false;
