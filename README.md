@@ -160,6 +160,10 @@ cmake --build build
 
 `scripts/install-local.sh` builds, installs to `~/.local/lib/hyprbars-macos/`, and loads the new build into the running Hyprland. It replaces the file without overwriting it in place, which could crash a compositor that has it loaded.
 
+### Rebuild on Hyprland updates
+
+A plugin only loads into the Hyprland it was built for. On Arch, `scripts/install-pacman-hook.sh` installs a pacman hook that runs `scripts/rebuild-for-hyprland.sh` after every Hyprland install or upgrade. The script picks the plugin commit `hyprpm.toml` pins for the new Hyprland (or `main`), builds it, and installs it for the next login; the build log is in `~/.cache/hyprbars-macos/rebuild.log`. Remove the hook with `sudo rm /etc/pacman.d/hooks/hyprbars-macos.hook`.
+
 ## Test
 
 The scripts in `test/` run a disposable nested Hyprland, so a broken build cannot take down your session:
@@ -169,6 +173,12 @@ The scripts in `test/` run a disposable nested Hyprland, so a broken build canno
 - `test/run-swap.sh [reverse]` swaps between Omarchy's plugin and this one with a config reload.
 
 `tools/verify.py` is upstream's verifier for dragging, maximize, and action targeting.
+
+## Maintenance
+
+- **Build** (`.github/workflows/build.yml`) compiles every push and pull request against the Hyprland release in `ci/hyprland-version`. `ci/hyprland-headers.sh` installs that release's headers with the exact hyprwm libraries its `flake.lock` pins, so the check does not depend on what Arch ships.
+- **Hyprland release** (`.github/workflows/hyprland-release.yml`) runs daily. When Hyprland publishes a release `hyprpm.toml` does not pin, it builds `main` against it; on success it pins the release, tags the commit `hlX.Y.Z`, and moves `ci/hyprland-version`; on failure it opens an issue.
+- When a Hyprland release changes the plugin API, port `main`, and keep the last working commit for the old version pinned in `hyprpm.toml`.
 
 ## License
 
