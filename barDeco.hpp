@@ -81,6 +81,8 @@ private:
   void renderBarButtons(Render::CRenderContext &ctx, CBox *barBox, const float scale, const float a);
   void renderBarButtonsText(Render::CRenderContext &ctx, CBox *barBox, const float scale, const float a);
   void damageOnButtonHover();
+  bool drawsOwnGlyph(const SOmarchyFloatingHyprButton &button) const;
+  void renderLightButton(Render::CRenderContext &ctx, SOmarchyFloatingHyprButton &button, const CBox &box, const CHyprColor &face, float a);
 
   bool inputIsValid();
   void onMouseButton(Event::SCallbackInfo &info, IPointer::SButtonEvent e);

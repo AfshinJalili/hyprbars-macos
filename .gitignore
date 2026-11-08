@@ -1,1 +1,4 @@
 build/
+test/*.png
+test/*.log
+test/.swap
