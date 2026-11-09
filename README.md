@@ -149,7 +149,7 @@ end
 
 If the build does not match your Hyprland, Omarchy's plugin loads instead, so floating windows keep their title bars. Install a build there with `scripts/install-local.sh`.
 
-The two plugins share the `plugin:hyprbars` options and `hl.plugin.hyprbars`. Hyprland gives each name to the plugin that registered it first and removes it when that plugin unloads. This wrapper loads this plugin while Omarchy's is still loaded, so this plugin registers the names it was refused again before each config reload; switching to it in a running session needs nothing else. Omarchy's plugin does not do this, so to switch back, unload this one first or switch in a fresh session.
+The two plugins share the `plugin:hyprbars` options and `hl.plugin.hyprbars`. Hyprland gives each name to the plugin that registered it first and removes it when that plugin unloads. This wrapper loads this plugin while Omarchy's is still loaded, so this plugin registers the names it was refused again before each config reload and adds its own bar to windows that show Omarchy's; switching to it in a running session needs nothing else. Omarchy's plugin does not do this, so to switch back, unload this one first or switch in a fresh session.
 
 ## Build
 
@@ -170,7 +170,7 @@ The scripts in `test/` run a disposable nested Hyprland, so a broken build canno
 
 - `test/run-nested.sh [scale] [out.png] [x,y]` screenshots a focused and an unfocused window, optionally hovering a point.
 - `test/run-two-monitors.sh` moves a window from a 1x to a 2x monitor and screenshots its title on each.
-- `test/run-swap.sh [reverse]` swaps between Omarchy's plugin and this one with a config reload, as the Omarchy wrapper does, and reports whether the options and `hl.plugin.hyprbars` survive.
+- `test/run-swap.sh [reverse]` swaps between Omarchy's plugin and this one with a config reload, as the Omarchy wrapper does, and reports whether the options, `hl.plugin.hyprbars` and the open window's bar survive.
 
 `tools/verify.py` is upstream's verifier for dragging, maximize, and action targeting.
 
