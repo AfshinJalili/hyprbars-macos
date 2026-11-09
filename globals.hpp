@@ -34,6 +34,9 @@ struct SOmarchyFloatingGlobalState {
   uint32_t nobarRuleIdx = 0;
   uint32_t barColorRuleIdx = 0;
   uint32_t titleColorRuleIdx = 0;
+  // Options and the Lua function not registered yet; see registerSharedNames().
+  std::vector<SP<Config::Values::IValue>> unregisteredValues;
+  bool luaFunctionRegistered = false;
 
   struct {
     SP<Config::Values::CColorValue> barColor, textColor, inactiveBarColor, inactiveButtonColor, buttonBorderColor;
