@@ -30,6 +30,11 @@ extern "C" {
 // Do NOT change this function.
 APICALL EXPORT std::string PLUGIN_API_VERSION() { return HYPRLAND_API_VERSION; }
 
+// This plugin's bar on the window, or bars.end() when it has none.
+static auto findBar(PHLWINDOW window) {
+  return std::ranges::find_if(g_pOmarchyFloatingGlobalState->bars, [&window](const auto &bar) { return bar->getOwner() == window; });
+}
+
 static void onNewWindow(PHLWINDOW window) {
   if (!window->m_X11DoesntWantBorders) {
     if (std::ranges::any_of(window->m_windowDecorations, [](const auto &d) { return d->getDisplayName() == "Hyprbar"; }))
@@ -59,8 +64,7 @@ static void onConfigReloaded() {
 }
 
 static void onUpdateWindowRules(PHLWINDOW window) {
-  const auto BARIT = std::find_if(g_pOmarchyFloatingGlobalState->bars.begin(), g_pOmarchyFloatingGlobalState->bars.end(),
-                                  [window](const auto &bar) { return bar->getOwner() == window; });
+  const auto BARIT = findBar(window);
 
   if (BARIT == g_pOmarchyFloatingGlobalState->bars.end())
     return;
