@@ -3,6 +3,7 @@ name = "hyprbars-macos"
 authors = ["Afshin Jalili"]
 # Hyprland commit -> plugin commit. Hyprland versions not listed build main.
 commit_pins = [
+    ["11cbc6c577b84ffb1edf4df3fc5b6128c3ae6947", "f1429814558c6bebb5ea85a17075135ebab10d53"], # 0.57.2
     ["36b2e0cfe0c6094dbc47bd42a437431315bb3087", "2697253797471a526a7d1f424fca119db3303142"], # 0.56.0
     ["5c9377c15f85c50648f35ca5a213754f95b93ca0", "2697253797471a526a7d1f424fca119db3303142"], # 0.56.1
     ["efb50993780079460b0cbed1363e2166a2de1d9f", "2697253797471a526a7d1f424fca119db3303142"], # 0.56.2
