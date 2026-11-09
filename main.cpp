@@ -37,7 +37,9 @@ static auto findBar(PHLWINDOW window) {
 
 static void onNewWindow(PHLWINDOW window) {
   if (!window->m_X11DoesntWantBorders) {
-    if (std::ranges::any_of(window->m_windowDecorations, [](const auto &d) { return d->getDisplayName() == "Hyprbar"; }))
+    // Only this plugin's bar counts: Omarchy's titlebars name theirs "Hyprbar"
+    // too, and a live swap loads this plugin while those are still on screen.
+    if (findBar(window) != g_pOmarchyFloatingGlobalState->bars.end())
       return;
 
     auto bar = makeUnique<COmarchyFloatingHyprBar>(window);
