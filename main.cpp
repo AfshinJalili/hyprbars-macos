@@ -42,8 +42,11 @@ static void onNewWindow(PHLWINDOW window) {
   }
 }
 
+static void registerSharedNames();
+
 static void onPreConfigReload() {
   g_pOmarchyFloatingGlobalState->buttons.clear();
+  registerSharedNames();
 }
 
 static void onConfigReloaded() {
@@ -191,7 +194,11 @@ int newOmarchyFloatingLuaButton(lua_State *L) {
 }
 
 // Registers the options and hl.plugin.hyprbars.add_button, keeping those
-// Hyprland rejects.
+// Hyprland rejects. They share their names with Omarchy's titlebars, so while
+// that plugin is loaded Hyprland rejects ours, and unloading it removes the
+// names. A live swap loads this plugin before the other unloads, so the names
+// are retried before each config reload (onPreConfigReload); otherwise
+// hl.plugin.hyprbars stays nil and the options stay unknown.
 static void registerSharedNames() {
   auto &state = *g_pOmarchyFloatingGlobalState;
   std::erase_if(state.unregisteredValues, [](const auto &value) { return HyprlandAPI::addConfigValueV2(OMARCHY_FLOATING_PHANDLE, value); });

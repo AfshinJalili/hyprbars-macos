@@ -17,5 +17,6 @@ if kill -0 $pid 2>/dev/null; then echo "alive after swap"; else echo "CRASHED"; 
 echo "after: $(hyprctl plugin list -j | jq -c "[.[] | .version]")"
 hyprctl configerrors 2>&1 | head -5
 echo "options: enabled=$(hyprctl getoption plugin:hyprbars:enabled | head -1)"
+echo "lua: hl.plugin.hyprbars is a $(hyprctl repl 'return type(hl.plugin.hyprbars)')"
 if [[ -n ${2:-} ]]; then eval "$2"; sleep 3; echo "after fix: $(hyprctl plugin list -j | jq -c "[.[] | .version]") enabled=$(hyprctl getoption plugin:hyprbars:enabled | head -1)"; kill -0 $pid && echo alive || echo CRASHED; fi
 kill $pid 2>/dev/null; rm -f "$ROOT/test/.swap"
